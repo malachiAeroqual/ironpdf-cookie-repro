@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IronPdf Repro</title>
+</head>
+<body>
+    <h1>IronPdf v2023.8.6</h1>
+    <h2>Summary</h2>
+    Using IronPdf v2023.8.6, when rendering this page as a pdf, the fetch request doesn't receive
+    the cookie provided in LoginCredentials.CustomCookies, and so the response below is unsuccessful because
+    the request is not authenticated
+    <br />
+    
+    <h2>Steps for running:</h2>
+    <ol>
+        <li>call the <button onclick="login()">login</button> endpoint</li>
+        <li>Reload this page, the fetch response below should be successful</li>
+        <li>call the <a target="_blank" href="/generate-pdf">generate-pdf</a> endpoint</li>
+    </ol>
+    
+    <h2>Fetch Response:</h2>
+    <div id="data">
+        Loading...
+    </div>
+    <div id="cookies"></div>
+</body>
+<script>
+    document.getElementById('cookies').innerHTML = `Cookies: ${document.cookie}`;
+    fetch('/some-data').then(function (response) {
+        if (response.status === 200) {
+            return response.text().then(data => `Success: ${data}`);
+        } else {
+            return new Promise(r => r(`Error Status Code: ${response.status}`));
+        }
+    }).then(function (data) {
+        document.getElementById('data').innerHTML = data;
+        window.ironpdf?.notifyrender?.();
+    });
+    
+    function login() {
+        fetch('/login').then(() => {
+            console.log('logged in');
+            window.location = window.location;
+        })
+    }
+</script>
+</html>
